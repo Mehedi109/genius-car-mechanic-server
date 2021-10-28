@@ -5,7 +5,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
@@ -46,6 +46,29 @@ async function run() {
       const result = await servicesCollection.insertOne(service);
       console.log('hit server', service);
       res.json(result);
+    });
+    // UPDATE API
+    app.put('/services/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const updatedService = req.body;
+      console.log(updatedService);
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: updatedService.name,
+          price: updatedService.price,
+          img: updatedService.img,
+        },
+      };
+      const result = await servicesCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      console.log('updating');
+      res.send(result);
     });
     // DELETE API
     app.delete('/services/:id', async (req, res) => {
